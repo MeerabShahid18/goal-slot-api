@@ -49,4 +49,25 @@ export const envValidationSchema = Joi.object({
   // PostHog
   POSTHOG_API_KEY: Joi.string().optional(),
   POSTHOG_HOST: Joi.string().uri().optional(),
+
+  // Coach feature — AES-256-GCM master key for encrypting user BYOK keys at rest
+  BYOK_ENCRYPTION_KEY: Joi.string()
+    .required()
+    .custom((value, helpers) => {
+      try {
+        const buf = Buffer.from(value, 'base64');
+        if (buf.length !== 32) {
+          return helpers.error('any.invalid', { message: 'BYOK_ENCRYPTION_KEY must decode to 32 bytes' });
+        }
+        return value;
+      } catch {
+        return helpers.error('any.invalid', { message: 'BYOK_ENCRYPTION_KEY must be base64' });
+      }
+    }, 'BYOK key validation'),
+
+  // Optional shared Gemini Flash fallback so users without their own
+  // BYOK key can still try the Coach. Disabled when not set; daily
+  // per-user cap defaults to 20.
+  GOOGLE_AI_SHARED_API_KEY: Joi.string().optional().allow(''),
+  SHARED_COACH_DAILY_LIMIT: Joi.number().integer().min(1).max(1000).default(20),
 });
