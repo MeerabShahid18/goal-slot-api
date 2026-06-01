@@ -19,7 +19,8 @@ export class PostHogExceptionFilter implements ExceptionFilter {
       colors: false,
     })
     const serializedException = this.toSerializable(exception)
-
+    this.logger.error(`[Exception:raw] ${rawException}`)
+    this.logger.error(`[Exception:json] ${JSON.stringify(serializedException)}`)
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
