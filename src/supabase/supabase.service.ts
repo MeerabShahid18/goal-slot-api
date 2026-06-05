@@ -17,20 +17,13 @@ export class SupabaseService {
   private readonly serviceRoleKey: string;
 
   constructor(private configService: ConfigService) {
-    this.supabaseUrl = this.configService
-      .getOrThrow<string>('SUPABASE_URL')
-      .trim()
-      .replace(/\/+$/, '');
-    this.serviceRoleKey = this.configService
-      .getOrThrow<string>('SUPABASE_SERVICE_ROLE_KEY')
-      .trim();
+    this.supabaseUrl =
+      this.configService.getOrThrow<string>('SUPABASE_URL');
+    this.serviceRoleKey = this.configService.getOrThrow<string>(
+      'SUPABASE_SERVICE_ROLE_KEY',
+    );
 
-    this.supabase = createClient(this.supabaseUrl, this.serviceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    });
+    this.supabase = createClient(this.supabaseUrl, this.serviceRoleKey);
   }
 
   getClient(): SupabaseClient {

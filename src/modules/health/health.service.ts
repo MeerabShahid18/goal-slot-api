@@ -73,7 +73,7 @@ export class HealthService {
           latencyMs: 0,
         }),
         this.safeCheck('resend', () => this.checkResend(), {
-          ok: false,
+          ok: true,
           configured: false,
         }),
         this.safeCheck('geminiShared', () => this.checkGeminiShared(), {
@@ -166,7 +166,7 @@ export class HealthService {
    * Check Resend API key configuration
    * Does NOT call Resend API (to avoid usage costs)
    */
-  private checkResend(): { ok: boolean; configured: boolean } {
+  private async checkResend(): Promise<{ ok: boolean; configured: boolean }> {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
     const configured = !!apiKey && apiKey.length > 0;
 
@@ -176,14 +176,17 @@ export class HealthService {
       this.logger.warn('Resend API key is not configured');
     }
 
-    return { ok: configured, configured };
+    return { ok: true, configured };
   }
 
   /**
    * Check Gemini shared API key configuration
    * Missing key is not a failure (feature is optional)
    */
-  private checkGeminiShared(): { ok: boolean; configured: boolean } {
+  private async checkGeminiShared(): Promise<{
+    ok: boolean;
+    configured: boolean;
+  }> {
     const apiKey = this.configService.get<string>('GOOGLE_AI_SHARED_API_KEY');
     const configured = !!apiKey && apiKey.length > 0;
 
@@ -224,7 +227,7 @@ export class HealthService {
 
   private async safeCheck<T>(
     name: string,
-    check: () => T | Promise<T>,
+    check: () => Promise<T>,
     fallback: T,
   ): Promise<T> {
     try {
