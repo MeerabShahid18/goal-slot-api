@@ -86,6 +86,9 @@ export class TemplatesService {
         for (let i = 0; i < template.goals.length; i++) {
           const g = template.goals[i];
           const computed = targetHoursByRef.get(g.ref) ?? 0;
+          const deadline = g.deadlineDays
+            ? new Date(Date.now() + g.deadlineDays * 24 * 60 * 60 * 1000)
+            : null;
           const created = await tx.goal.create({
             data: {
               userId,
@@ -95,6 +98,7 @@ export class TemplatesService {
               color: g.color,
               order: i,
               targetHours: g.targetHours ?? computed,
+              deadline,
               templateId: template.id,
               templateGoalRef: g.ref,
             },
